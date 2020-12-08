@@ -15,9 +15,15 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-mustache")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
+  testImplementation("org.testcontainers:junit-jupiter")
+  testImplementation("org.testcontainers:mongodb")
+
 }
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
