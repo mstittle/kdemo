@@ -4,6 +4,8 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.10.RELEASE"
 	kotlin("jvm") version "1.4.10"
 	kotlin("plugin.spring") version "1.4.10"
+	  kotlin("plugin.allopen") version "1.3.61"
+
 }
 group = "org.stittlem"
 version = "0.0.1-SNAPSHOT"
@@ -11,6 +13,12 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 repositories {
 	mavenCentral()
 }
+
+
+allOpen {
+  annotation("org.springframework.data.mongodb.core.mapping.Document")
+}
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-mustache")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -19,10 +27,18 @@ dependencies {
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+testImplementation("org.springframework.boot:spring-boot-starter-test") {
+  exclude(module = "junit")
+  exclude(module = "mockito-core")
+}
+testImplementation("org.junit.jupiter:junit-jupiter-api")
+testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+testImplementation("com.ninja-squad:springmockk:1.1.3")
+
   testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
-  testImplementation("org.testcontainers:junit-jupiter")
-  testImplementation("org.testcontainers:mongodb")
+  //testImplementation("org.testcontainers:junit-jupiter")
+  //testImplementation("org.testcontainers:mongodb")
 
 }
 tasks.withType<KotlinCompile> {

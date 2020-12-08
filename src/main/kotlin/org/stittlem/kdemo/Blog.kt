@@ -1,18 +1,64 @@
 package org.stittlem.kdemo
 
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.repository.MongoRepository
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField
+import java.util.*
 
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
-import org.springframework.ui.set
-import org.springframework.web.bind.annotation.GetMapping
+@Document
+class Article(
+        var title: String,
+        var headline: String,
+        var content: String,
+        var author: User,
+        var slug: String = title.toSlug(),
+        var addedAt: LocalDateTime = LocalDateTime.now(),
+        @Id var _id: String? = null)
 
-@Controller
-class HtmlController {
+@Document
+class User(
+        var login: String,
+        var firstname: String,
+        var lastname: String,
+        var description: String? = null,
+        @Id var _id: String? = null)
 
-    @GetMapping("/")
-    fun blog(model: Model): String {
-        model["title"] = "Blog"
-        return "blog"
-    }
+fun LocalDateTime.format() = this.format(englishDateFormatter)
 
+private val daysLookup = (1..31).associate { it.toLong() to getOrdinal(it) }
+
+private val englishDateFormatter = DateTimeFormatterBuilder()
+        .appendPattern("yyyy-MM-dd")
+        .appendLiteral(" ")
+        .appendText(ChronoField.DAY_OF_MONTH, daysLookup)
+        .appendLiteral(" ")
+        .appendPattern("yyyy")
+        .toFormatter(Locale.ENGLISH)
+
+private fun getOrdinal(n: Int) = when {
+    n in 11..13 -> "${n}th"
+    n % 10 == 1 -> "${n}st"
+    n % 10 == 2 -> "${n}nd"
+    n % 10 == 3 -> "${n}rd"
+    else -> "${n}th"
+}
+
+fun String.toSlug() = toLowerCase()
+        .replace("\n", " ")
+        .replace("[^a-z\\d\\s]".toRegex(), " ")
+        .split(" ")
+        .joinToString("-")
+        .replace("-+".toRegex(), "-")
+
+
+interface ArticleRepository : MongoRepository<Article, String> {
+    fun findBySlug(slug: String): Article?
+    fun findAllByOrderByAddedAtDesc(): Iterable<Article>
+}
+
+interface UserRepository : MongoRepository<User, String> {
+    fun findByLogin(login: String): User?
 }
